@@ -15,6 +15,6 @@ public class GridCreater : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
 }

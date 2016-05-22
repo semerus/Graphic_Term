@@ -41,14 +41,14 @@ public class GridManager : MonoBehaviour {
 		{
 			for (int j=0; j<10; j++)
 			{
-				if(_grid[i,j] == 0) { //create walls
+				if(_grid[i,j] == 0) { //empty spaces
 					position.Set(_GridConverter(i,j).x, _GridConverter(i,j).y, _GridConverter(i,j).z);
 					ObjectMaker(i, j, position, "marker",_markerHolder, markerPrefab);
 				}
 				if(_grid[i,j] == 1) { //create walls
 					position.Set(_GridConverter(i,j).x, _GridConverter(i,j).y, _GridConverter(i,j).z);
 					ObjectMaker(i, j, position, "wall", _wallHolder, wallPrefab);
-					ObjectMaker(i, j, position, "marker",_markerHolder, markerPrefab);
+					//ObjectMaker(i, j, position, "marker",_markerHolder, markerPrefab); dont need markers for walls
 				}
 				if(_grid[i,j] == 2) {
 					position.Set(_GridConverter(i,j).x, _GridConverter(i,j).y, _GridConverter(i,j).z);
