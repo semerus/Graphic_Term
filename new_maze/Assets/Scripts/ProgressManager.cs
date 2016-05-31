@@ -12,8 +12,10 @@ public class ProgressManager : MonoBehaviour {
 	private int stageJumper = 0; //stageJumper to keep track of stages in one command
 	public InsTructions instruction; //instructions given to UserControl(player)
 
-	GameObject markerFinder; //1st destination, current destination
-	GameObject markerFinder2; //second destination
+	GameObject markerDes1; //1st destination, current destination
+	GameObject markerDes2; //second destination
+	GameObject markerDes3; //third destination
+	GameObject markerFinal;
 	GameObject player;
 	
 	GameObject buttonLeft;
@@ -34,11 +36,15 @@ public class ProgressManager : MonoBehaviour {
 		buttonRight = GameObject.FindGameObjectWithTag("ButtonRight");
 		buttonForward = GameObject.FindGameObjectWithTag("ButtonForward");
 		buttonBackward = GameObject.FindGameObjectWithTag("ButtonBackward");
+
+		instruction.movingFin = true;
 		instruction.rotationFin = true;
-		instruction.status = 0;
+		instruction.playerStatus = 0;
 
 		buttonLeft.GetComponentInChildren<Text>().text = "Go Left";
 		buttonRight.GetComponentInChildren<Text>().text = "Go Right";
+		buttonForward.GetComponentInChildren<Text> ().text = "Go Forward";
+		buttonBackward.GetComponentInChildren<Text> ().text = "Go Back";
 
 		buttonLeft.SetActive (false);
 		buttonRight.SetActive (false);
@@ -50,41 +56,107 @@ public class ProgressManager : MonoBehaviour {
 	void Update () {
 		switch (_stateNum) { //scenarios of the game, refer to the Excel file(maze.xlsx)
 		case 0: // start #0
-			markerFinder = GameObject.Find ("marker76");
-			instruction.target = markerFinder.transform.position;
-			if((Vector3.Distance (this.player.transform.position, this.markerFinder.transform.position) < 0.0001f)) {
+			markerFinal = GameObject.Find ("marker76"); // final point of the case
+			MoveThisWay("marker76", 0);
+			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+				//instruction.playerStatus = 1; // change playerStatus to choosing(1)
+				buttonLeft.SetActive (true);
+				buttonRight.SetActive (true);
+			}
+			if(rightInput == true) {
+				_stateNum = 1;
+				stageJumper = 0;
+				rightInput = false;
+				ButtonOut();
+			}
+			if(leftInput == true) {
+				_stateNum = 2;
+				stageJumper = 0;
+				leftInput = false;
+				ButtonOut();
+			}
+			break;
+		case 1: // going right at point #1
+			markerFinal = GameObject.Find ("marker68");
+			MoveThisWay("marker66", RIGHT_ROTATE, "marker68", RIGHT_ROTATE);
+			break;
+		case 2: // going left at point #1
+			markerFinal = GameObject.Find ("marker62");
+			MoveThisWay("marker66", LEFT_ROTATE, "marker62", NO_ROTATION);
+			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
 				buttonLeft.SetActive (true);
 				buttonRight.SetActive (true);
 			}
 			if(leftInput == true) {
-				_stateNum = 2;
+				_stateNum = 4;
+				stageJumper = 0;
 				leftInput = false;
 				ButtonOut();
 			}
 			if(rightInput == true) {
-				_stateNum = 1;
+				_stateNum = 3;
+				stageJumper = 0;
 				rightInput = false;
 				ButtonOut();
-			}break;
-		case 1: // going right at point #1
-			MoveThisWay("marker66", RIGHT_ROTATE, "marker68", RIGHT_ROTATE);
+			}
 			break;
-		case 2: // going left at point #1
-			MoveThisWay("marker66", LEFT_ROTATE, "marker62", NO_ROTATION);
+		case 3: 
+			markerFinal = GameObject.Find ("marker43");
+			MoveThisWay("marker61", RIGHT_ROTATE, "marker41", RIGHT_ROTATE, "marker43", NO_ROTATION);
+			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+				buttonLeft.SetActive (true);
+				buttonForward.SetActive (true);
+			}
+			if(leftInput == true) {
+				_stateNum = 5;
+				stageJumper = 0;
+				leftInput = false;
+				ButtonOut();
+			}
+			if(forwardInput == true) {
+				_stateNum = 6;
+				stageJumper = 0;
+				forwardInput = false;
+				ButtonOut();
+			}
+			break;
+		case 4:
+			break;
+		case 5:
+			markerFinal = GameObject.Find ("marker24");
+			MoveThisWay("marker44", LEFT_ROTATE, "marker24", NO_ROTATION);
+			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+				buttonLeft.SetActive (true);
+				buttonRight.SetActive (true);
+			}
+			if(leftInput == true) {
+				_stateNum = 7;
+				stageJumper = 0;
+				leftInput = false;
+				ButtonOut();
+			}
+			if(rightInput == true) {
+				_stateNum = 8;
+				stageJumper = 0;
+				rightInput = false;
+				ButtonOut();
+			}
+			break;
+		case 6:
 			break;
 		default: 
 			break;
 		}
-		instruction.target = markerFinder.transform.position;
-		instruction.status = 0;
 	}
 
 	//structure of instruction
 	public struct InsTructions {
-		public Vector3 target; // target position
+		public int playerStatus; // 0 is moving, 1 is choosing, 2 is none
+		public bool movingFin; // false not done(activate), true done
+		public Vector3 moving; // moving(to) position
+		public bool rotationFin; //false not done(activate), true done
 		public int rotation; // 1 is right, 2 is left, 0 is none
-		public int status; // 0 is moving, 1 is choosing, 2 is none
-		public bool rotationFin; //false not done, true done
+
 	}
 
 	public void ButtonOut() {
@@ -115,32 +187,90 @@ public class ProgressManager : MonoBehaviour {
 		this.backwardInput = true;
 	}
 
-	//moving method overloading
-	public void MoveThisWay(string des1, int rot1, string des2, int rot2) {
-		this.markerFinder = GameObject.Find (des1); //1st destination, current destination
-		this.markerFinder2 = GameObject.Find (des2); //2nd destination
+	//moving method x1
+	public void MoveThisWay(string des1, int rot1) {
+		this.markerDes1 = GameObject.Find (des1); //1st destination
 		switch(this.stageJumper) {
 		case 0: 
-			if((Vector3.Distance (this.player.transform.position, this.markerFinder.transform.position) < 0.0001f)) {
+			this.instruction.playerStatus = 0;
+			this.instruction.moving = markerDes1.transform.position;
+			if((Vector3.Distance (this.player.transform.position, this.markerDes1.transform.position) < 0.0001f)) {
 				this.instruction.rotation = rot1; //do first rotation
 				this.instruction.rotationFin = false;
 				this.stageJumper = 1;
 			}
 			break;
-		case 1: 
-			this.markerFinder = this.markerFinder2;
-			if((Vector3.Distance (this.player.transform.position, this.markerFinder.transform.position) < 0.0001f)) {
-				this.instruction.rotation = rot2; //do second rotation
+		default:
+			break;
+		}
+	}
+	//moving method x2
+	public void MoveThisWay(string des1, int rot1, string des2, int rot2) {
+		this.markerDes1 = GameObject.Find (des1); //1st destination
+		this.markerDes2 = GameObject.Find (des2); //2nd destination
+		switch(this.stageJumper) {
+		case 0:
+			this.instruction.playerStatus = 0;
+			this.instruction.moving = markerDes1.transform.position;
+			if((Vector3.Distance (this.player.transform.position, this.markerDes1.transform.position) < 0.0001f)) {
+				this.instruction.rotation = rot1; //do first rotation
+				if(this.instruction.rotationFin == true)
+					this.stageJumper = 1;
 				this.instruction.rotationFin = false;
-				this.stageJumper = 2;
 			}
 			break;
-		case 2:
-			this.markerFinder = this.markerFinder2;
+		case 1:
+			this.instruction.playerStatus = 0;
+			this.instruction.moving = markerDes2.transform.position;
+			if((Vector3.Distance (this.player.transform.position, this.markerDes2.transform.position) < 0.0001f)) {
+				this.instruction.rotation = rot2; //do second rotation
+				if(this.instruction.rotationFin == true)
+					this.stageJumper = 2;
+				this.instruction.rotationFin = false;
+			}
 			break;
 		default:
 			break;
 		}
-		//Debug.Log (Vector3.Distance (player.transform.position, markerFinder2.transform.position));
+	}
+	//moving method x3
+	public void MoveThisWay(string des1, int rot1, string des2, int rot2, string des3, int rot3) {
+		this.markerDes1 = GameObject.Find (des1); //1st destination
+		this.markerDes2 = GameObject.Find (des2); //2nd destination
+		this.markerDes3 = GameObject.Find (des3); //3rd destination
+		switch(this.stageJumper) {
+		case 0:
+			this.instruction.playerStatus = 0;
+			this.instruction.moving = markerDes1.transform.position;
+			if((Vector3.Distance (this.player.transform.position, this.markerDes1.transform.position) < 0.0001f)) {
+				this.instruction.rotation = rot1; //do first rotation
+				if(this.instruction.rotationFin == true)
+					this.stageJumper = 1;
+				this.instruction.rotationFin = false;
+			}
+			break;
+		case 1:
+			this.instruction.playerStatus = 0;
+			this.instruction.moving = markerDes1.transform.position;
+			if((Vector3.Distance (this.player.transform.position, this.markerDes2.transform.position) < 0.0001f)) {
+				this.instruction.rotation = rot2; //do second rotation
+				if(this.instruction.rotationFin == true)
+					this.stageJumper = 2;
+				this.instruction.rotationFin = false;
+			}
+			break;
+		case 2:
+			this.instruction.playerStatus = 0;
+			this.instruction.moving = markerDes1.transform.position;
+			if((Vector3.Distance (this.player.transform.position, this.markerDes3.transform.position) < 0.0001f)) {
+				this.instruction.rotation = rot3; //do third rotation
+				if(this.instruction.rotationFin == true)
+					this.stageJumper = 3;
+				this.instruction.rotationFin = false;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 }
