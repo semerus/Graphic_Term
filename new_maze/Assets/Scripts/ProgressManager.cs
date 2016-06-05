@@ -6,6 +6,8 @@ public class ProgressManager : MonoBehaviour {
 	//const for rotation declaration
 	public const int LEFT_ROTATE = 2;
 	public const int RIGHT_ROTATE = 1;
+	public const int DOWN_ROTATE = 3;
+	public const int UP_ROTATE = 4;
 	public const int NO_ROTATION = 0;
 
 	private int _stateNum = 0; //scenario number
@@ -15,13 +17,14 @@ public class ProgressManager : MonoBehaviour {
 	GameObject markerDes1; //1st destination, current destination
 	GameObject markerDes2; //second destination
 	GameObject markerDes3; //third destination
-	GameObject markerFinal;
+	GameObject markerFinal; //final destination used for buttons
 	GameObject player;
 	
 	GameObject buttonLeft;
 	GameObject buttonRight;
 	GameObject buttonForward;
 	GameObject buttonBackward;
+	GameObject winText;
 
 	bool leftInput = false;
 	bool rightInput = false;
@@ -36,6 +39,7 @@ public class ProgressManager : MonoBehaviour {
 		buttonRight = GameObject.FindGameObjectWithTag("ButtonRight");
 		buttonForward = GameObject.FindGameObjectWithTag("ButtonForward");
 		buttonBackward = GameObject.FindGameObjectWithTag("ButtonBackward");
+		winText = GameObject.FindGameObjectWithTag ("WinText");
 
 		instruction.movingFin = true;
 		instruction.rotationFin = true;
@@ -45,19 +49,22 @@ public class ProgressManager : MonoBehaviour {
 		buttonRight.GetComponentInChildren<Text>().text = "Go Right";
 		buttonForward.GetComponentInChildren<Text> ().text = "Go Forward";
 		buttonBackward.GetComponentInChildren<Text> ().text = "Go Back";
+		winText.GetComponent<Text> ().text = "Well Done";
 
 		buttonLeft.SetActive (false);
 		buttonRight.SetActive (false);
 		buttonForward.SetActive (false);
 		buttonBackward.SetActive (false);
+		winText.SetActive (false);
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		Debug.Log (_stateNum);
 		switch (_stateNum) { //scenarios of the game, refer to the Excel file(maze.xlsx)
 		case 0: // start #0
 			markerFinal = GameObject.Find ("marker76"); // final point of the case
-			MoveThisWay("marker76", 0);
+			MoveThisWay("marker76", NO_ROTATION);
 			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
 				//instruction.playerStatus = 1; // change playerStatus to choosing(1)
 				buttonLeft.SetActive (true);
@@ -77,8 +84,7 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 1: // going right at point #1
-			markerFinal = GameObject.Find ("marker68");
-			MoveThisWay("marker66", RIGHT_ROTATE, "marker68", RIGHT_ROTATE);
+			MoveThisWay("marker66", RIGHT_ROTATE, "marker68", DOWN_ROTATE);
 			break;
 		case 2: // going left at point #1
 			markerFinal = GameObject.Find ("marker62");
@@ -102,7 +108,7 @@ public class ProgressManager : MonoBehaviour {
 			break;
 		case 3: 
 			markerFinal = GameObject.Find ("marker43");
-			MoveThisWay("marker61", RIGHT_ROTATE, "marker41", RIGHT_ROTATE, "marker43", NO_ROTATION);
+			MoveThisWay("marker61", UP_ROTATE, "marker41", RIGHT_ROTATE, "marker43", NO_ROTATION);
 			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
 				buttonLeft.SetActive (true);
 				buttonForward.SetActive (true);
@@ -121,10 +127,11 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 4:
+			MoveThisWay("marker61", DOWN_ROTATE, "marker81", RIGHT_ROTATE);
 			break;
 		case 5:
 			markerFinal = GameObject.Find ("marker24");
-			MoveThisWay("marker44", LEFT_ROTATE, "marker24", NO_ROTATION);
+			MoveThisWay("marker44", UP_ROTATE, "marker24", NO_ROTATION);
 			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
 				buttonLeft.SetActive (true);
 				buttonRight.SetActive (true);
@@ -143,6 +150,17 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 6:
+			MoveThisWay("marker48", UP_ROTATE, "marker38", NO_ROTATION);
+			break;
+		case 7:
+			MoveThisWay("marker14", LEFT_ROTATE, "marker11", DOWN_ROTATE);
+			break;
+		case 8:
+			markerFinal = GameObject.Find("marker06");
+			MoveThisWay("marker14", RIGHT_ROTATE, "marker16", UP_ROTATE, "marker06", NO_ROTATION);
+			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+				winText.SetActive(true);
+			}
 			break;
 		default: 
 			break;
@@ -154,6 +172,7 @@ public class ProgressManager : MonoBehaviour {
 		public int playerStatus; // 0 is moving, 1 is choosing, 2 is none
 		public bool movingFin; // false not done(activate), true done
 		public Vector3 moving; // moving(to) position
+		public bool rotationStart; // counter for starting rotation, false not yet turned rotationFin false
 		public bool rotationFin; //false not done(activate), true done
 		public int rotation; // 1 is right, 2 is left, 0 is none
 
@@ -196,8 +215,14 @@ public class ProgressManager : MonoBehaviour {
 			this.instruction.moving = markerDes1.transform.position;
 			if((Vector3.Distance (this.player.transform.position, this.markerDes1.transform.position) < 0.0001f)) {
 				this.instruction.rotation = rot1; //do first rotation
-				this.instruction.rotationFin = false;
-				this.stageJumper = 1;
+				if(this.instruction.rotationStart == false) {
+					this.instruction.rotationFin = false;
+					this.instruction.rotationStart = true;
+				}
+				if(this.instruction.rotationFin == true) {
+					this.stageJumper = 1;
+					this.instruction.rotationStart = false;
+				}
 			}
 			break;
 		default:
@@ -214,9 +239,14 @@ public class ProgressManager : MonoBehaviour {
 			this.instruction.moving = markerDes1.transform.position;
 			if((Vector3.Distance (this.player.transform.position, this.markerDes1.transform.position) < 0.0001f)) {
 				this.instruction.rotation = rot1; //do first rotation
-				if(this.instruction.rotationFin == true)
+				if(this.instruction.rotationStart == false) {
+					this.instruction.rotationFin = false;
+					this.instruction.rotationStart = true;
+				}
+				if(this.instruction.rotationFin == true) {
 					this.stageJumper = 1;
-				this.instruction.rotationFin = false;
+					this.instruction.rotationStart = false;
+				}
 			}
 			break;
 		case 1:
@@ -224,9 +254,14 @@ public class ProgressManager : MonoBehaviour {
 			this.instruction.moving = markerDes2.transform.position;
 			if((Vector3.Distance (this.player.transform.position, this.markerDes2.transform.position) < 0.0001f)) {
 				this.instruction.rotation = rot2; //do second rotation
-				if(this.instruction.rotationFin == true)
+				if(this.instruction.rotationStart == false) {
+					this.instruction.rotationFin = false;
+					this.instruction.rotationStart = true;
+				}
+				if(this.instruction.rotationFin == true) {
 					this.stageJumper = 2;
-				this.instruction.rotationFin = false;
+					this.instruction.rotationStart = false;
+				}
 			}
 			break;
 		default:
@@ -244,29 +279,44 @@ public class ProgressManager : MonoBehaviour {
 			this.instruction.moving = markerDes1.transform.position;
 			if((Vector3.Distance (this.player.transform.position, this.markerDes1.transform.position) < 0.0001f)) {
 				this.instruction.rotation = rot1; //do first rotation
-				if(this.instruction.rotationFin == true)
+				if(this.instruction.rotationStart == false) {
+					this.instruction.rotationFin = false;
+					this.instruction.rotationStart = true;
+				}
+				if(this.instruction.rotationFin == true) {
 					this.stageJumper = 1;
-				this.instruction.rotationFin = false;
+					this.instruction.rotationStart = false;
+				}
 			}
 			break;
 		case 1:
 			this.instruction.playerStatus = 0;
-			this.instruction.moving = markerDes1.transform.position;
+			this.instruction.moving = markerDes2.transform.position;
 			if((Vector3.Distance (this.player.transform.position, this.markerDes2.transform.position) < 0.0001f)) {
 				this.instruction.rotation = rot2; //do second rotation
-				if(this.instruction.rotationFin == true)
+				if(this.instruction.rotationStart == false) {
+					this.instruction.rotationFin = false;
+					this.instruction.rotationStart = true;
+				}
+				if(this.instruction.rotationFin == true) {
 					this.stageJumper = 2;
-				this.instruction.rotationFin = false;
+					this.instruction.rotationStart = false;
+				}
 			}
 			break;
 		case 2:
 			this.instruction.playerStatus = 0;
-			this.instruction.moving = markerDes1.transform.position;
+			this.instruction.moving = markerDes3.transform.position;
 			if((Vector3.Distance (this.player.transform.position, this.markerDes3.transform.position) < 0.0001f)) {
 				this.instruction.rotation = rot3; //do third rotation
-				if(this.instruction.rotationFin == true)
+				if(this.instruction.rotationStart == false) {
+					this.instruction.rotationFin = false;
+					this.instruction.rotationStart = true;
+				}
+				if(this.instruction.rotationFin == true) {
 					this.stageJumper = 3;
-				this.instruction.rotationFin = false;
+					this.instruction.rotationStart = false;
+				}
 			}
 			break;
 		default:
