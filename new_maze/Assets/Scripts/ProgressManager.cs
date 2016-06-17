@@ -60,7 +60,7 @@ public class ProgressManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Debug.Log (_stateNum);
+		Debug.Log (_stateNum+"true"+instruction.rotationFin);
 		switch (_stateNum) { //scenarios of the game, refer to the Excel file(maze.xlsx)
 		case 0: // start #0
 			markerFinal = GameObject.Find ("marker76"); // final point of the case
@@ -84,7 +84,17 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 1: // going right at point #1
+			markerFinal = GameObject.Find("marker68");
 			MoveThisWay("marker66", RIGHT_ROTATE, "marker68", DOWN_ROTATE);
+			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+				buttonBackward.SetActive (true);
+			}
+			if(backwardInput == true) {
+				_stateNum = 9;
+				stageJumper = 0;
+				backwardInput = false;
+				ButtonOut();
+			}
 			break;
 		case 2: // going left at point #1
 			markerFinal = GameObject.Find ("marker62");
@@ -160,6 +170,26 @@ public class ProgressManager : MonoBehaviour {
 			MoveThisWay("marker14", RIGHT_ROTATE, "marker16", UP_ROTATE, "marker06", NO_ROTATION);
 			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
 				winText.SetActive(true);
+			}
+			break;
+		case 9:
+			markerFinal = GameObject.Find("marker62");
+			MoveThisWay ("marker68", LEFT_ROTATE, "marker62", NO_ROTATION);
+			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+				buttonLeft.SetActive (true);
+				buttonRight.SetActive (true);
+			}
+			if(leftInput == true) {
+				_stateNum = 4;
+				stageJumper = 0;
+				leftInput = false;
+				ButtonOut();
+			}
+			if(rightInput == true) {
+				_stateNum = 3;
+				stageJumper = 0;
+				rightInput = false;
+				ButtonOut();
 			}
 			break;
 		default: 

@@ -16,10 +16,10 @@ public class UserControl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		_left.SetEulerAngles(0f, -Mathf.PI/2, 0f);
+		_left.SetEulerAngles(0f, Mathf.PI*1.5f, 0f);
 		_right.SetEulerAngles(0f, Mathf.PI/2, 0f);
 		_up.SetEulerAngles (0f, 0f, 0f);
-		_down.SetEulerAngles (0f, -Mathf.PI, 0f);
+		_down.SetEulerAngles (0f, Mathf.PI, 0f);
 
 		progress = GameObject.Find("ProgressManager").GetComponent<ProgressManager>();
 	}
