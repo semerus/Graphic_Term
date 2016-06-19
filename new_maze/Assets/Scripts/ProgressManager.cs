@@ -4,9 +4,12 @@ using UnityEngine.UI;
 
 public class ProgressManager : MonoBehaviour {
 	//const for rotation declaration
-	public const int LEFT_ROTATE = 2;
-	public const int RIGHT_ROTATE = 1;
-	public const int DOWN_ROTATE = 3;
+	public const int UPLEFT_ROTATE = 5;
+	public const int DOWNLEFT_ROTATE = 2;
+	public const int UPRIGHT_ROTATE = 1;
+	public const int DOWNRIGHT_ROTATE = 6;
+	public const int RIGHTDOWN_ROTATE = 3;
+	public const int LEFTDOWN_ROTATE = 7;
 	public const int UP_ROTATE = 4;
 	public const int NO_ROTATION = 0;
 
@@ -60,13 +63,11 @@ public class ProgressManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Debug.Log (_stateNum+"true"+instruction.rotationFin);
+		Debug.Log (_stateNum+"true"+instruction.rotationFin+"status"+instruction.playerStatus);
 		switch (_stateNum) { //scenarios of the game, refer to the Excel file(maze.xlsx)
 		case 0: // start #0
-			markerFinal = GameObject.Find ("marker76"); // final point of the case
 			MoveThisWay("marker76", NO_ROTATION);
-			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
-				//instruction.playerStatus = 1; // change playerStatus to choosing(1)
+			if(instruction.playerStatus == 1) {
 				buttonLeft.SetActive (true);
 				buttonRight.SetActive (true);
 			}
@@ -84,9 +85,8 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 1: // going right at point #1
-			markerFinal = GameObject.Find("marker68");
-			MoveThisWay("marker66", RIGHT_ROTATE, "marker68", DOWN_ROTATE);
-			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+			MoveThisWay("marker66", UPRIGHT_ROTATE, "marker68", RIGHTDOWN_ROTATE, "marker78", NO_ROTATION);
+			if(instruction.playerStatus == 1) {
 				buttonBackward.SetActive (true);
 			}
 			if(backwardInput == true) {
@@ -97,9 +97,8 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 2: // going left at point #1
-			markerFinal = GameObject.Find ("marker62");
-			MoveThisWay("marker66", LEFT_ROTATE, "marker62", NO_ROTATION);
-			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+			MoveThisWay("marker66", UPLEFT_ROTATE, "marker62", NO_ROTATION);
+			if(instruction.playerStatus == 1) {
 				buttonLeft.SetActive (true);
 				buttonRight.SetActive (true);
 			}
@@ -117,9 +116,8 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 3: 
-			markerFinal = GameObject.Find ("marker43");
-			MoveThisWay("marker61", UP_ROTATE, "marker41", RIGHT_ROTATE, "marker43", NO_ROTATION);
-			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+			MoveThisWay("marker61", UP_ROTATE, "marker41", UPRIGHT_ROTATE, "marker43", NO_ROTATION);
+			if(instruction.playerStatus == 1) {
 				buttonLeft.SetActive (true);
 				buttonForward.SetActive (true);
 			}
@@ -137,12 +135,19 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 4:
-			MoveThisWay("marker61", DOWN_ROTATE, "marker81", RIGHT_ROTATE);
+			MoveThisWay ("marker61", LEFTDOWN_ROTATE, "marker81", DOWNRIGHT_ROTATE, "marker82", NO_ROTATION);
+			if (instruction.playerStatus == 1)
+				buttonBackward.SetActive (true);
+			if (backwardInput == true) {
+				_stateNum = 10;
+				stageJumper = 0;
+				backwardInput = false;
+				ButtonOut ();
+			}
 			break;
 		case 5:
-			markerFinal = GameObject.Find ("marker24");
 			MoveThisWay("marker44", UP_ROTATE, "marker24", NO_ROTATION);
-			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+			if(instruction.playerStatus == 1) {
 				buttonLeft.SetActive (true);
 				buttonRight.SetActive (true);
 			}
@@ -163,33 +168,26 @@ public class ProgressManager : MonoBehaviour {
 			MoveThisWay("marker48", UP_ROTATE, "marker38", NO_ROTATION);
 			break;
 		case 7:
-			MoveThisWay("marker14", LEFT_ROTATE, "marker11", DOWN_ROTATE);
+			MoveThisWay("marker14", UPLEFT_ROTATE, "marker11", LEFTDOWN_ROTATE);
 			break;
 		case 8:
-			markerFinal = GameObject.Find("marker06");
-			MoveThisWay("marker14", RIGHT_ROTATE, "marker16", UP_ROTATE, "marker06", NO_ROTATION);
-			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
+			MoveThisWay("marker14", UPRIGHT_ROTATE, "marker16", UP_ROTATE, "marker06", NO_ROTATION);
+			if(instruction.playerStatus == 1) {
 				winText.SetActive(true);
 			}
 			break;
 		case 9:
-			markerFinal = GameObject.Find("marker62");
-			MoveThisWay ("marker68", LEFT_ROTATE, "marker62", NO_ROTATION);
-			if((Vector3.Distance (this.player.transform.position, this.markerFinal.transform.position) < 0.0001f)) {
-				buttonLeft.SetActive (true);
-				buttonRight.SetActive (true);
-			}
-			if(leftInput == true) {
-				_stateNum = 4;
+			MoveThisWay ("marker78", UP_ROTATE, "marker68", UPLEFT_ROTATE);
+			if (instruction.playerStatus == 1) {
+				_stateNum = 2;
 				stageJumper = 0;
-				leftInput = false;
-				ButtonOut();
 			}
-			if(rightInput == true) {
+			break;
+		case 10:
+			MoveThisWay ("marker82", UPLEFT_ROTATE, "marker81", UP_ROTATE);
+			if (instruction.playerStatus == 1) {
 				_stateNum = 3;
 				stageJumper = 0;
-				rightInput = false;
-				ButtonOut();
 			}
 			break;
 		default: 
@@ -255,6 +253,10 @@ public class ProgressManager : MonoBehaviour {
 				}
 			}
 			break;
+		case 1: //choosing time
+			this.instruction.playerStatus = 1;
+			this.stageJumper = 2;
+			break;
 		default:
 			break;
 		}
@@ -293,6 +295,10 @@ public class ProgressManager : MonoBehaviour {
 					this.instruction.rotationStart = false;
 				}
 			}
+			break;
+		case 2: //choosing time
+			this.instruction.playerStatus = 1;
+			this.stageJumper = 3;
 			break;
 		default:
 			break;
@@ -348,6 +354,10 @@ public class ProgressManager : MonoBehaviour {
 					this.instruction.rotationStart = false;
 				}
 			}
+			break;
+		case 3:
+			this.instruction.playerStatus = 1;
+			this.stageJumper = 4;
 			break;
 		default:
 			break;
