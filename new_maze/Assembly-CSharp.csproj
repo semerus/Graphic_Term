@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\BattleManager.cs" />
      <Compile Include="Assets\Scripts\GridCreater.cs" />
      <Compile Include="Assets\Scripts\GridManager.cs" />
+     <Compile Include="Assets\Scripts\MonsterStatus.cs" />
      <Compile Include="Assets\Scripts\ProgressManager.cs" />
      <Compile Include="Assets\Scripts\UserControl.cs" />
  <Reference Include="UnityEngine.UI">

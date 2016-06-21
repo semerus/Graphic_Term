@@ -4,7 +4,7 @@
     <Files>
       <File FileName="Assets/Scripts/ProgressManager.cs" Line="178" Column="10" />
       <File FileName="Assets/Scripts/UserControl.cs" Line="55" Column="48" />
-      <File FileName="Assets/Scripts/BattleManager.cs" Line="27" Column="10" />
+      <File FileName="Assets/Scripts/BattleManager.cs" Line="33" Column="36" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
