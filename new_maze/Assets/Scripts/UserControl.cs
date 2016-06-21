@@ -11,7 +11,8 @@ public class UserControl : MonoBehaviour {
 	private Quaternion _downRight = Quaternion.identity;
 	private Quaternion _upLeft = Quaternion.identity;
 	private Quaternion _downLeft = Quaternion.identity;
-	private Quaternion _up = Quaternion.identity;
+	private Quaternion _rightUp = Quaternion.identity;
+	private Quaternion _leftUp = Quaternion.identity;
 	private Quaternion _rightDown = Quaternion.identity;
 	private Quaternion _leftDown = Quaternion.identity;
 
@@ -19,13 +20,14 @@ public class UserControl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		_upRight.SetEulerAngles(0f, Mathf.PI/2, 0f);
-		_downRight.SetEulerAngles (0f, -Mathf.PI*1.5f, 0f);
-		_upLeft.SetEulerAngles (0f, -Mathf.PI/2, 0f);
-		_downLeft.SetEulerAngles(0f, Mathf.PI*1.5f, 0f);
-		_up.SetEulerAngles (0f, 0f, 0f);
-		_rightDown.SetEulerAngles (0f, Mathf.PI, 0f);
-		_leftDown.SetEulerAngles (0f, -Mathf.PI, 0f);
+		_upRight = Quaternion.Euler (0, 90, 0);
+		_downRight = Quaternion.Euler (0, -270, 0);
+		_upLeft = Quaternion.Euler (0, -90, 0);
+		_downLeft = Quaternion.Euler (0, 270, 0);
+		_rightUp = Quaternion.Euler (0, 0, 0);
+		_leftUp = Quaternion.Euler (0, -360, 0);
+		_rightDown = Quaternion.Euler (0, 180, 0);
+		_leftDown = Quaternion.Euler (0, -180, 0);
 
 		progress = GameObject.Find("ProgressManager").GetComponent<ProgressManager>();
 	}
@@ -57,8 +59,10 @@ public class UserControl : MonoBehaviour {
 		}
 		if (num == ProgressManager.DOWNRIGHT_ROTATE) {
 			this.transform.rotation = Quaternion.Slerp (this.transform.rotation, _downRight, speed * Time.deltaTime * 2f);
-			if(this.transform.rotation == this._downRight)
-				this.progress.instruction.rotationFin = true;		
+			if (this.transform.rotation == this._downRight) {
+				this.progress.instruction.rotationFin = true;
+				this.transform.rotation = this._upRight;
+			}
 		}
 		if (num == ProgressManager.UPLEFT_ROTATE) {
 			this.transform.rotation = Quaternion.Slerp (this.transform.rotation, _upLeft, speed * Time.deltaTime * 2f);
@@ -70,10 +74,17 @@ public class UserControl : MonoBehaviour {
 			if(this.transform.rotation == this._downLeft)
 				this.progress.instruction.rotationFin = true;
 		}
-		if (num == ProgressManager.UP_ROTATE) {
-			this.transform.rotation = Quaternion.Slerp (this.transform.rotation, _up, speed * Time.deltaTime * 2f);
-			if(this.transform.rotation == this._up)
+		if (num == ProgressManager.RIGHTUP_ROTATE) {
+			this.transform.rotation = Quaternion.Slerp (this.transform.rotation, _rightUp, speed * Time.deltaTime * 2f);
+			if(this.transform.rotation == this._rightUp)
 				this.progress.instruction.rotationFin = true;
+		}
+		if (num == ProgressManager.LEFTUP_ROTATE) {
+			this.transform.rotation = Quaternion.Slerp (this.transform.rotation, _leftUp, speed * Time.deltaTime * 2f);
+			if (this.transform.rotation == this._leftUp) {
+				this.progress.instruction.rotationFin = true;
+				this.transform.rotation = this._rightUp;
+			}
 		}
 		if (num == ProgressManager.RIGHTDOWN_ROTATE) {
 			this.transform.rotation = Quaternion.Slerp (this.transform.rotation, _rightDown, speed * Time.deltaTime * 2f);

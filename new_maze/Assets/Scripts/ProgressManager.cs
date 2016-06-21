@@ -10,8 +10,14 @@ public class ProgressManager : MonoBehaviour {
 	public const int DOWNRIGHT_ROTATE = 6;
 	public const int RIGHTDOWN_ROTATE = 3;
 	public const int LEFTDOWN_ROTATE = 7;
-	public const int UP_ROTATE = 4;
+	public const int RIGHTUP_ROTATE = 4;
+	public const int LEFTUP_ROTATE = 8;
 	public const int NO_ROTATION = 0;
+
+	public const int MOVING = 0;
+	public const int CHOOSING = 1;
+	public const int BATTLING = 2;
+	public const int END = 3;
 
 	private int _stateNum = 0; //scenario number
 	private int stageJumper = 0; //stageJumper to keep track of stages in one command
@@ -63,11 +69,13 @@ public class ProgressManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Debug.Log (_stateNum+"true"+instruction.rotationFin+"status"+instruction.playerStatus);
+		//Debug.Log (_stateNum+"true"+instruction.rotationFin+"status"+instruction.playerStatus);
 		switch (_stateNum) { //scenarios of the game, refer to the Excel file(maze.xlsx)
 		case 0: // start #0
-			MoveThisWay("marker76", NO_ROTATION);
-			if(instruction.playerStatus == 1) {
+			MoveThisWay ("marker76", NO_ROTATION);
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = CHOOSING;
+			if(instruction.playerStatus == CHOOSING) {
 				buttonLeft.SetActive (true);
 				buttonRight.SetActive (true);
 			}
@@ -85,8 +93,10 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 1: // going right at point #1
-			MoveThisWay("marker66", UPRIGHT_ROTATE, "marker68", RIGHTDOWN_ROTATE, "marker78", NO_ROTATION);
-			if(instruction.playerStatus == 1) {
+			MoveThisWay ("marker66", UPRIGHT_ROTATE, "marker68", RIGHTDOWN_ROTATE, "marker78", NO_ROTATION);
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = BATTLING;
+			if(instruction.playerStatus == CHOOSING) {
 				buttonBackward.SetActive (true);
 			}
 			if(backwardInput == true) {
@@ -98,7 +108,9 @@ public class ProgressManager : MonoBehaviour {
 			break;
 		case 2: // going left at point #1
 			MoveThisWay("marker66", UPLEFT_ROTATE, "marker62", NO_ROTATION);
-			if(instruction.playerStatus == 1) {
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = CHOOSING;
+			if(instruction.playerStatus == CHOOSING) {
 				buttonLeft.SetActive (true);
 				buttonRight.SetActive (true);
 			}
@@ -115,9 +127,11 @@ public class ProgressManager : MonoBehaviour {
 				ButtonOut();
 			}
 			break;
-		case 3: 
-			MoveThisWay("marker61", UP_ROTATE, "marker41", UPRIGHT_ROTATE, "marker43", NO_ROTATION);
-			if(instruction.playerStatus == 1) {
+		case 3: // going right at point #2
+			MoveThisWay("marker61", RIGHTUP_ROTATE, "marker41", UPRIGHT_ROTATE, "marker43", NO_ROTATION);
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = BATTLING;
+			if(instruction.playerStatus == CHOOSING) {
 				buttonLeft.SetActive (true);
 				buttonForward.SetActive (true);
 			}
@@ -134,9 +148,11 @@ public class ProgressManager : MonoBehaviour {
 				ButtonOut();
 			}
 			break;
-		case 4:
+		case 4: // going left at point #2
 			MoveThisWay ("marker61", LEFTDOWN_ROTATE, "marker81", DOWNRIGHT_ROTATE, "marker82", NO_ROTATION);
-			if (instruction.playerStatus == 1)
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = BATTLING;
+			if (instruction.playerStatus == CHOOSING)
 				buttonBackward.SetActive (true);
 			if (backwardInput == true) {
 				_stateNum = 10;
@@ -145,9 +161,11 @@ public class ProgressManager : MonoBehaviour {
 				ButtonOut ();
 			}
 			break;
-		case 5:
-			MoveThisWay("marker44", UP_ROTATE, "marker24", NO_ROTATION);
-			if(instruction.playerStatus == 1) {
+		case 5: // going left at point #3
+			MoveThisWay("marker44", RIGHTUP_ROTATE, "marker24", NO_ROTATION);
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = CHOOSING;
+			if(instruction.playerStatus == CHOOSING) {
 				buttonLeft.SetActive (true);
 				buttonRight.SetActive (true);
 			}
@@ -164,29 +182,72 @@ public class ProgressManager : MonoBehaviour {
 				ButtonOut();
 			}
 			break;
-		case 6:
-			MoveThisWay("marker48", UP_ROTATE, "marker38", NO_ROTATION);
-			break;
-		case 7:
-			MoveThisWay("marker14", UPLEFT_ROTATE, "marker11", LEFTDOWN_ROTATE);
-			break;
-		case 8:
-			MoveThisWay("marker14", UPRIGHT_ROTATE, "marker16", UP_ROTATE, "marker06", NO_ROTATION);
-			if(instruction.playerStatus == 1) {
-				winText.SetActive(true);
+		case 6: // going forward at point #3
+			MoveThisWay ("marker48", RIGHTUP_ROTATE, "marker38", NO_ROTATION);
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = BATTLING;
+			if (instruction.playerStatus == CHOOSING)
+				buttonBackward.SetActive (true);
+			if (backwardInput == true) {
+				_stateNum = 11;
+				stageJumper = 0;
+				backwardInput = false;
+				ButtonOut ();
 			}
 			break;
-		case 9:
-			MoveThisWay ("marker78", UP_ROTATE, "marker68", UPLEFT_ROTATE);
-			if (instruction.playerStatus == 1) {
+		case 7: // going left at point #4
+			MoveThisWay ("marker14", UPLEFT_ROTATE, "marker11", LEFTDOWN_ROTATE);
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = BATTLING;
+			if (instruction.playerStatus == CHOOSING) {
+				buttonBackward.SetActive (true);
+			}
+			if (backwardInput == true) {
+				_stateNum = 13;
+				stageJumper = 0;
+				backwardInput = false;
+				ButtonOut ();
+			}
+			break;
+		case 8: // going right at point #4
+			MoveThisWay("marker14", UPRIGHT_ROTATE, "marker16", RIGHTUP_ROTATE, "marker06", NO_ROTATION);
+			if (instruction.playerStatus == END)
+				winText.SetActive (true);
+			break;
+		case 9: // turning back at marker78
+			MoveThisWay ("marker78", RIGHTUP_ROTATE, "marker68", UPLEFT_ROTATE);
+			if (instruction.playerStatus == END)
+				instruction.playerStatus = CHOOSING;
+			if (instruction.playerStatus == CHOOSING) {
 				_stateNum = 2;
 				stageJumper = 0;
 			}
 			break;
-		case 10:
-			MoveThisWay ("marker82", UPLEFT_ROTATE, "marker81", UP_ROTATE);
-			if (instruction.playerStatus == 1) {
+		case 10: // turning back at marker82
+			MoveThisWay ("marker82", UPLEFT_ROTATE, "marker81", RIGHTUP_ROTATE);
+			if (instruction.playerStatus == END) {
 				_stateNum = 3;
+				stageJumper = 0;
+			}
+			break;
+		case 11: // turning back at marker38
+			MoveThisWay ("marker38", RIGHTDOWN_ROTATE, "marker48", DOWNLEFT_ROTATE, "marker45", NO_ROTATION);
+			if (instruction.playerStatus == END) {
+				_stateNum = 12;
+				stageJumper = 0;
+			}
+			break;
+		case 12: // continued from case 11
+			MoveThisWay ("marker44", LEFTUP_ROTATE);
+			if (instruction.playerStatus == END) {
+				_stateNum = 5;
+				stageJumper = 0;
+			}
+			break;
+		case 13:
+			MoveThisWay ("marker11", DOWNRIGHT_ROTATE, "marker14", NO_ROTATION);
+			if (instruction.playerStatus == END) {
+				_stateNum = 8;
 				stageJumper = 0;
 			}
 			break;
@@ -206,7 +267,7 @@ public class ProgressManager : MonoBehaviour {
 
 	}
 
-	public void ButtonOut() {
+	public void ButtonOut() { // method for shutting out all the buttons
 		this.buttonLeft.SetActive (false);
 		this.buttonRight.SetActive (false);
 		this.buttonForward.SetActive (false);
@@ -254,7 +315,7 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 1: //choosing time
-			this.instruction.playerStatus = 1;
+			this.instruction.playerStatus = END;
 			this.stageJumper = 2;
 			break;
 		default:
@@ -297,7 +358,7 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 2: //choosing time
-			this.instruction.playerStatus = 1;
+			this.instruction.playerStatus = END;
 			this.stageJumper = 3;
 			break;
 		default:
@@ -356,7 +417,7 @@ public class ProgressManager : MonoBehaviour {
 			}
 			break;
 		case 3:
-			this.instruction.playerStatus = 1;
+			this.instruction.playerStatus = END;
 			this.stageJumper = 4;
 			break;
 		default:

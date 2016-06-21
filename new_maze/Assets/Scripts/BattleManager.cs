@@ -5,9 +5,19 @@ using UnityEngine.UI;
 public class BattleManager : MonoBehaviour {
 
 	GameObject crossarrow;
+	ProgressManager progress;
+
 	public float speed;
-	private float fireRate = 0.5f;
-	private float nextFire = 0.0f;
+	private bool fireReady = true;
+	private int bullet = 5;
+	private int deadMonster = 0;
+
+	GameObject bulletImg1; 
+	GameObject bulletImg2; 
+	GameObject bulletImg3; 
+	GameObject bulletImg4; 
+	GameObject bulletImg5; 
+
 	Vector2 up = new Vector2(0f, 1f);
 	Vector2 down = new Vector2(0f, -1f);
 	Vector2 right = new Vector2(1f, 0f);
@@ -17,36 +27,108 @@ public class BattleManager : MonoBehaviour {
 	void Start () {
 		crossarrow = GameObject.FindWithTag ("CrossArrow");
 		crossarrow.gameObject.SetActive (false);
+		progress = GameObject.Find ("ProgressManager").GetComponent<ProgressManager>();
+
+		bulletImg1 = GameObject.Find ("Bullet1"); 
+		bulletImg2 = GameObject.Find ("Bullet2");
+		bulletImg3 = GameObject.Find ("Bullet3");
+		bulletImg4 = GameObject.Find ("Bullet4");
+		bulletImg5 = GameObject.Find ("Bullet5"); 
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKey ("up"))
-			crossarrow.GetComponent<RectTransform> ().anchoredPosition += up * speed;
-		if (Input.GetKey ("down"))
-			crossarrow.GetComponent<RectTransform> ().anchoredPosition += down * speed;
-		if (Input.GetKey ("right"))
-			crossarrow.GetComponent<RectTransform> ().anchoredPosition += right * speed;
-		if (Input.GetKey ("left"))
-			crossarrow.GetComponent<RectTransform> ().anchoredPosition += left * speed;
-		if (Input.GetKey ("c") && Time.time > nextFire) {
-			nextFire = Time.time + fireRate;
-			Debug.Log ("hit!");
-			//Vector3 aim = Vector2 (crossarrow.GetComponent<RectTransform> ().anchoredPosition);
-			//Vector2 aim = Camera.current.WorldToScreenPoint(crossarrow.GetComponent<RectTransform> ().anchoredPosition);
-			//Ray ray = Camera.main.ScreenPointToRay (crossarrow.);
-			//Ray ray = crossarrow.GetComponent<RectTransform> ().anchoredPosition;
+		if (progress.instruction.playerStatus == ProgressManager.BATTLING) {
+			if (Input.GetKey ("up"))
+				crossarrow.GetComponent<RectTransform> ().anchoredPosition += up * speed;
+			if (Input.GetKey ("down"))
+				crossarrow.GetComponent<RectTransform> ().anchoredPosition += down * speed;
+			if (Input.GetKey ("right"))
+				crossarrow.GetComponent<RectTransform> ().anchoredPosition += right * speed;
+			if (Input.GetKey ("left"))
+				crossarrow.GetComponent<RectTransform> ().anchoredPosition += left * speed;
+			if (Input.touchCount > 0 && fireReady == true) {
+				Debug.Log ("hit!");
+				//Vector3 aim = Vector2 (crossarrow.GetComponent<RectTransform> ().anchoredPosition);
+				//Vector2 aim = Camera.current.WorldToScreenPoint(crossarrow.GetComponent<RectTransform> ().anchoredPosition);
+				//Ray ray = Camera.main.ScreenPointToRay (crossarrow.);
+				//Ray ray = crossarrow.GetComponent<RectTransform> ().anchoredPosition;
+				//Ray ray = Camera.current.ScreenPointToRay(crossarrow.GetComponent<RectTransform> ().anchoredPosition);
+				Vector2 pos = Input.GetTouch (0).position;
+				Vector3 pos3 = new Vector3 (pos.x, pos.y, 0.0f);
+				Ray ray = Camera.current.ScreenPointToRay (pos3);
+				StartCoroutine (ShootByTouch (ray));
+			}
+			if (Input.GetKey ("c") && fireReady == true) {
+				Vector3 mousePos = Input.mousePosition;
+				Ray ray2 = Camera.main.ScreenPointToRay (mousePos);
+				StartCoroutine (ShootByMouse(ray2));
+			}
+			if (bullet < 1) {
+				StartCoroutine (Reload ());
+			}
+		}
+	}
 
-			//Ray ray = Camera.current.ScreenPointToRay(crossarrow.GetComponent<RectTransform> ().anchoredPosition);
-			Ray ray = Camera.current.ScreenPointToRay(Input.mousePosition);
+	public IEnumerator ShootByTouch (Ray ray) {
+		if (bullet > 0) {
+			fireReady = false;
+			GameObject bulletImg = GameObject.Find ("Bullet" + bullet);
+			bulletImg.SetActive (false);
+			bullet--;
 			RaycastHit hitInfo;
-			if(Physics.Raycast (ray, out hitInfo, 10f)) {
+			if (Physics.Raycast (ray, out hitInfo, 10f)) {
 				Debug.Log ("info" + hitInfo.collider.name);
 				if (hitInfo.collider.tag == "Monster") {
 					GameObject target = GameObject.Find (hitInfo.collider.name);
-					target.GetComponent<MonsterStatus>().HealthDecrease();
+					target.GetComponent<MonsterStatus> ().HealthDecrease ();
 				}
 			}
 		}
+		yield return new WaitForSeconds (1);
+		this.fireReady = true;
+	}
+
+	public IEnumerator ShootByMouse (Ray ray2) {
+		if (bullet > 0) {
+			fireReady = false;
+			GameObject bulletImg = GameObject.Find ("Bullet" + bullet);
+			bulletImg.SetActive (false);
+			bullet--;
+			RaycastHit hitInfo2;
+			if (Physics.Raycast (ray2, out hitInfo2, 10f)) {
+				Debug.Log ("info" + hitInfo2.collider.name+"bullet"+this.bullet);
+				if (hitInfo2.collider.tag == "Monster") {
+					GameObject target = GameObject.Find (hitInfo2.collider.name);
+					target.GetComponent<MonsterStatus> ().HealthDecrease ();				
+				}
+			}
+		}
+		yield return new WaitForSeconds (1);
+		this.fireReady = true;
+	}
+
+	public IEnumerator Reload () {
+		Debug.Log ("Reloading");
+		yield return new WaitForSeconds (3);
+		PartReload ();
+	}
+
+	public void PartReload() {
+		bullet = 5;
+		bulletImg1.SetActive (true);
+		bulletImg2.SetActive (true);
+		bulletImg3.SetActive (true);
+		bulletImg4.SetActive (true);
+		bulletImg5.SetActive (true);
+	}
+
+	public bool AddDeadMonster () { // 3 and up leads to true(passed stage)
+		deadMonster += 1;
+		if (deadMonster > 2) {
+			deadMonster = 0;
+			return true;
+		}
+		return false;
 	}
 }
