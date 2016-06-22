@@ -42,16 +42,16 @@ public class GridManager : MonoBehaviour {
 			for (int j=0; j<10; j++)
 			{
 				if(_grid[i,j] == 0) { //empty spaces
-					position.Set(_GridConverter(i,j).x, _GridConverter(i,j).y, _GridConverter(i,j).z);
+					position.Set(GridConverter(i,j).x, GridConverter(i,j).y, GridConverter(i,j).z);
 					ObjectMaker(i, j, position, "marker",_markerHolder, markerPrefab);
 				}
 				if(_grid[i,j] == 1) { //create walls
-					position.Set(_GridConverter(i,j).x, _GridConverter(i,j).y, _GridConverter(i,j).z);
+					position.Set(GridConverter(i,j).x, GridConverter(i,j).y, GridConverter(i,j).z);
 					ObjectMaker(i, j, position, "wall", _wallHolder, wallPrefab);
 					//ObjectMaker(i, j, position, "marker",_markerHolder, markerPrefab); dont need markers for walls
 				}
 				if(_grid[i,j] == 2) {
-					position.Set(_GridConverter(i,j).x, _GridConverter(i,j).y, _GridConverter(i,j).z);
+					position.Set(GridConverter(i,j).x, GridConverter(i,j).y, GridConverter(i,j).z);
 					GameObject player = Instantiate(playerPrefab, position, Quaternion.identity) as GameObject;
 					player.name = "player";
 					//player.transform.Rotate(0,180,0);
@@ -69,7 +69,7 @@ public class GridManager : MonoBehaviour {
 	}
 
 	//from matrix calculate position(vector3) in world space
-	private Vector3 _GridConverter(int x, int y) { 
+	public Vector3 GridConverter(int x, int y) { 
 		Vector3 position = new Vector3();
 		float vx, vz;
 		vx = -4.5f + (float)y;

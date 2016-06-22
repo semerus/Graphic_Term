@@ -11,6 +11,7 @@ public class BattleManager : MonoBehaviour {
 	private bool fireReady = true;
 	private int bullet = 5;
 	private int deadMonster = 0;
+	private int playerHP = 100;
 
 	GameObject bulletImg1; 
 	GameObject bulletImg2; 
@@ -111,10 +112,10 @@ public class BattleManager : MonoBehaviour {
 	public IEnumerator Reload () {
 		Debug.Log ("Reloading");
 		yield return new WaitForSeconds (3);
-		PartReload ();
+		ImageForReload ();
 	}
 
-	public void PartReload() {
+	public void ImageForReload() {
 		bullet = 5;
 		bulletImg1.SetActive (true);
 		bulletImg2.SetActive (true);
@@ -130,5 +131,20 @@ public class BattleManager : MonoBehaviour {
 			return true;
 		}
 		return false;
+	}
+
+	public void PlayerHpDecrease(int i) {
+		playerHP += -i;
+		if (playerHP < 1) {
+			progress.SetState (14);
+		}
+	}
+
+	public int SeePlayerHp() {
+		return playerHP;
+	}
+
+	public void SetPlayerHp() {
+		playerHP = 100;
 	}
 }

@@ -22,6 +22,8 @@ public class ProgressManager : MonoBehaviour {
 	private int _stateNum = 0; //scenario number
 	private int stageJumper = 0; //stageJumper to keep track of stages in one command
 	public InsTructions instruction; //instructions given to UserControl(player)
+	GridManager gridManager;
+	BattleManager battle;
 
 	GameObject markerDes1; //1st destination, current destination
 	GameObject markerDes2; //second destination
@@ -33,22 +35,29 @@ public class ProgressManager : MonoBehaviour {
 	GameObject buttonRight;
 	GameObject buttonForward;
 	GameObject buttonBackward;
+	GameObject buttonRestart;
 	GameObject winText;
+	GameObject gameOver;
 
 	bool leftInput = false;
 	bool rightInput = false;
 	bool forwardInput = false;
 	bool backwardInput = false;
+	bool restartInput = false;
 
 	// Use this for initialization
 	void Start () {
 		player = GameObject.FindGameObjectWithTag ("Player");
+		gridManager = GameObject.Find ("GridManager").GetComponent<GridManager> ();
+		battle = GameObject.Find ("BattleManager").GetComponent<BattleManager> ();
 
 		buttonLeft = GameObject.FindGameObjectWithTag("ButtonLeft");
 		buttonRight = GameObject.FindGameObjectWithTag("ButtonRight");
 		buttonForward = GameObject.FindGameObjectWithTag("ButtonForward");
 		buttonBackward = GameObject.FindGameObjectWithTag("ButtonBackward");
+		buttonRestart = GameObject.FindGameObjectWithTag ("ButtonRestart");
 		winText = GameObject.FindGameObjectWithTag ("WinText");
+		gameOver = GameObject.FindGameObjectWithTag ("Gameover");
 
 		instruction.movingFin = true;
 		instruction.rotationFin = true;
@@ -58,13 +67,17 @@ public class ProgressManager : MonoBehaviour {
 		buttonRight.GetComponentInChildren<Text>().text = "Go Right";
 		buttonForward.GetComponentInChildren<Text> ().text = "Go Forward";
 		buttonBackward.GetComponentInChildren<Text> ().text = "Go Back";
-		winText.GetComponent<Text> ().text = "Well Done";
+		buttonRestart.GetComponentInChildren<Text> ().text = "Restart";
+		winText.GetComponent<Text>().text = "Well Done";
+		gameOver.GetComponent<Text> ().text = "Game Over";
 
 		buttonLeft.SetActive (false);
 		buttonRight.SetActive (false);
 		buttonForward.SetActive (false);
 		buttonBackward.SetActive (false);
+		buttonRestart.SetActive (false);
 		winText.SetActive (false);
+		gameOver.SetActive (false);
 	}
 	
 	// Update is called once per frame
@@ -251,6 +264,21 @@ public class ProgressManager : MonoBehaviour {
 				stageJumper = 0;
 			}
 			break;
+		case 14: // player is dead
+			instruction.playerStatus = CHOOSING;
+			buttonRestart.SetActive (true);
+			gameOver.SetActive (true);
+			if (restartInput) {
+				player.transform.position = gridManager.GridConverter (8, 6);
+				player.transform.rotation = Quaternion.identity;
+				buttonRestart.SetActive (false);
+				gameOver.SetActive (false);
+				battle.SetPlayerHp ();
+				_stateNum = 0;
+				stageJumper = 0;
+				restartInput = false;
+			}
+			break;
 		default: 
 			break;
 		}
@@ -265,6 +293,10 @@ public class ProgressManager : MonoBehaviour {
 		public bool rotationFin; //false not done(activate), true done
 		public int rotation; // 1 is right, 2 is left, 0 is none
 
+	}
+
+	public void SetState (int i) { //set state
+		_stateNum = i;
 	}
 
 	public void ButtonOut() { // method for shutting out all the buttons
@@ -293,6 +325,11 @@ public class ProgressManager : MonoBehaviour {
 	public void BackwardButtonClick()
 	{
 		this.backwardInput = true;
+	}
+
+	public void RestartButtonClick()
+	{
+		this.restartInput = true;
 	}
 
 	//moving method x1
