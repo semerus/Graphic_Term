@@ -2,11 +2,12 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\ProgressManager.cs">
     <Files>
-      <File FileName="Assets\Scripts\BattleManager.cs" Line="148" Column="3" />
-      <File FileName="Assets\Scripts\ProgressManager.cs" Line="52" Column="72" />
-      <File FileName="Assets\Scripts\MonsterStatus.cs" Line="52" Column="30" />
-      <File FileName="Assets\Scripts\UserControl.cs" Line="64" Column="28" />
-      <File FileName="Assets\Scripts\GridManager.cs" Line="72" Column="30" />
+      <File FileName="Assets\Scripts\BattleManager.cs" Line="97" Column="3" />
+      <File FileName="Assets\Scripts\ProgressManager.cs" Line="280" Column="30" />
+      <File FileName="Assets\Scripts\MonsterStatus.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\UserControl.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\GridManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\UImanager.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

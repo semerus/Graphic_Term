@@ -24,6 +24,7 @@ public class ProgressManager : MonoBehaviour {
 	public InsTructions instruction; //instructions given to UserControl(player)
 	GridManager gridManager;
 	BattleManager battle;
+	GameObject[] creepers;
 
 	GameObject markerDes1; //1st destination, current destination
 	GameObject markerDes2; //second destination
@@ -78,6 +79,8 @@ public class ProgressManager : MonoBehaviour {
 		buttonRestart.SetActive (false);
 		winText.SetActive (false);
 		gameOver.SetActive (false);
+
+		creepers = GameObject.FindGameObjectsWithTag ("Monster");
 	}
 	
 	// Update is called once per frame
@@ -268,12 +271,14 @@ public class ProgressManager : MonoBehaviour {
 			instruction.playerStatus = CHOOSING;
 			buttonRestart.SetActive (true);
 			gameOver.SetActive (true);
-			if (restartInput) {
+			if (restartInput) { //restart the game
 				player.transform.position = gridManager.GridConverter (8, 6);
 				player.transform.rotation = Quaternion.identity;
 				buttonRestart.SetActive (false);
 				gameOver.SetActive (false);
 				battle.SetPlayerHp ();
+				battle.ImageForReload ();
+				RestartMonster ();
 				_stateNum = 0;
 				stageJumper = 0;
 				restartInput = false;
@@ -299,11 +304,30 @@ public class ProgressManager : MonoBehaviour {
 		_stateNum = i;
 	}
 
+	public int GetState () { // get state
+		return _stateNum;
+	}
+
 	public void ButtonOut() { // method for shutting out all the buttons
 		this.buttonLeft.SetActive (false);
 		this.buttonRight.SetActive (false);
 		this.buttonForward.SetActive (false);
 		this.buttonBackward.SetActive (false);
+	}
+
+	// recreate monster when restart
+	public void RestartMonster() {
+		GameObject creeper;
+		for (int i = 1; i < 15; i++) {
+			creeper = creepers [i];
+			Resurrect (creeper);
+		}
+	}
+
+	public void Resurrect(GameObject creeper) {
+		if(creeper.activeSelf == false)
+			creeper.SetActive (true);
+		creeper.GetComponent<MonsterStatus> ().HealthFull ();
 	}
 
 	//button clicks

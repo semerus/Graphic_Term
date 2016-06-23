@@ -27,7 +27,7 @@ public class BattleManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		crossarrow = GameObject.FindWithTag ("CrossArrow");
-		crossarrow.gameObject.SetActive (false);
+		crossarrow.gameObject.SetActive (false); //scrap plan
 		progress = GameObject.Find ("ProgressManager").GetComponent<ProgressManager>();
 
 		bulletImg1 = GameObject.Find ("Bullet1"); 
@@ -40,27 +40,14 @@ public class BattleManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (progress.instruction.playerStatus == ProgressManager.BATTLING) {
-			if (Input.GetKey ("up"))
-				crossarrow.GetComponent<RectTransform> ().anchoredPosition += up * speed;
-			if (Input.GetKey ("down"))
-				crossarrow.GetComponent<RectTransform> ().anchoredPosition += down * speed;
-			if (Input.GetKey ("right"))
-				crossarrow.GetComponent<RectTransform> ().anchoredPosition += right * speed;
-			if (Input.GetKey ("left"))
-				crossarrow.GetComponent<RectTransform> ().anchoredPosition += left * speed;
-			if (Input.touchCount > 0 && fireReady == true) {
+			if (Input.touchCount > 0 && fireReady == true) { //mobile
 				Debug.Log ("hit!");
-				//Vector3 aim = Vector2 (crossarrow.GetComponent<RectTransform> ().anchoredPosition);
-				//Vector2 aim = Camera.current.WorldToScreenPoint(crossarrow.GetComponent<RectTransform> ().anchoredPosition);
-				//Ray ray = Camera.main.ScreenPointToRay (crossarrow.);
-				//Ray ray = crossarrow.GetComponent<RectTransform> ().anchoredPosition;
-				//Ray ray = Camera.current.ScreenPointToRay(crossarrow.GetComponent<RectTransform> ().anchoredPosition);
 				Vector2 pos = Input.GetTouch (0).position;
 				Vector3 pos3 = new Vector3 (pos.x, pos.y, 0.0f);
 				Ray ray = Camera.current.ScreenPointToRay (pos3);
 				StartCoroutine (ShootByTouch (ray));
 			}
-			if (Input.GetKey ("c") && fireReady == true) {
+			if (Input.GetKey ("c") && fireReady == true) { //computer for testing shoot with c
 				Vector3 mousePos = Input.mousePosition;
 				Ray ray2 = Camera.main.ScreenPointToRay (mousePos);
 				StartCoroutine (ShootByMouse(ray2));
@@ -109,19 +96,19 @@ public class BattleManager : MonoBehaviour {
 		this.fireReady = true;
 	}
 
-	public IEnumerator Reload () {
-		Debug.Log ("Reloading");
-		yield return new WaitForSeconds (3);
+	public IEnumerator Reload () { //timer for reload
+		//Debug.Log ("Reloading");
+		yield return new WaitForSeconds (2);
 		ImageForReload ();
 	}
 
-	public void ImageForReload() {
-		bullet = 5;
+	public void ImageForReload() { //load bullet images after reload
 		bulletImg1.SetActive (true);
 		bulletImg2.SetActive (true);
 		bulletImg3.SetActive (true);
 		bulletImg4.SetActive (true);
 		bulletImg5.SetActive (true);
+		bullet = 5;
 	}
 
 	public bool AddDeadMonster () { // 3 and up leads to true(passed stage)
